@@ -1,5 +1,5 @@
-import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/16/solid'
 import { useTranslation } from 'react-i18next'
+import RulesChecklist from './RulesChecklist'
 
 function PasswordStrengthIndicator({ password, personalInfo = {} }) {
   const { t } = useTranslation()
@@ -27,12 +27,12 @@ function PasswordStrengthIndicator({ password, personalInfo = {} }) {
   }
 
   const rules = [
-    { key: 'minLength', test: password.length >= 8 },
-    { key: 'uppercase', test: /[A-Z]/.test(password) },
-    { key: 'lowercase', test: /[a-z]/.test(password) },
-    { key: 'digit', test: /[0-9]/.test(password) },
-    { key: 'special', test: /[^a-zA-Z0-9]/.test(password) },
-    { key: 'noPersonalInfo', test: !containsPersonalInfo() },
+    { label: t('register.passwordRules.minLength'), test: password.length >= 8 },
+    { label: t('register.passwordRules.uppercase'), test: /[A-Z]/.test(password) },
+    { label: t('register.passwordRules.lowercase'), test: /[a-z]/.test(password) },
+    { label: t('register.passwordRules.digit'), test: /[0-9]/.test(password) },
+    { label: t('register.passwordRules.special'), test: /[^a-zA-Z0-9]/.test(password) },
+    { label: t('register.passwordRules.noPersonalInfo'), test: !containsPersonalInfo() },
   ]
 
   const passedCount = rules.filter((r) => r.test).length
@@ -58,20 +58,7 @@ function PasswordStrengthIndicator({ password, personalInfo = {} }) {
           />
         ))}
       </div>
-      <ul className="space-y-1">
-        {rules.map((rule) => (
-          <li key={rule.key} className="flex items-center gap-1.5 text-xs">
-            {rule.test ? (
-              <CheckCircleIcon className="w-3.5 h-3.5 text-green-500" />
-            ) : (
-              <XCircleIcon className="w-3.5 h-3.5 text-gray-300" />
-            )}
-            <span className={rule.test ? 'text-green-600' : 'text-text-secondary'}>
-              {t(`register.passwordRules.${rule.key}`)}
-            </span>
-          </li>
-        ))}
-      </ul>
+      <RulesChecklist rules={rules} />
     </div>
   )
 }

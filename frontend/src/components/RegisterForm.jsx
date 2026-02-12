@@ -6,6 +6,7 @@ import useDebounce from '../hooks/useDebounce'
 import Input from './ui/Input'
 import Button from './ui/Button'
 import PasswordStrengthIndicator from './ui/PasswordStrengthIndicator'
+import PseudoRulesIndicator from './ui/PseudoRulesIndicator'
 
 function RegisterForm() {
   const { t } = useTranslation()
@@ -29,7 +30,7 @@ function RegisterForm() {
   const debouncedPseudo = useDebounce(formData.pseudo, 500)
 
   useEffect(() => {
-    if (!debouncedPseudo || debouncedPseudo.length < 3 || !/^[a-zA-Z0-9_-]+$/.test(debouncedPseudo)) {
+    if (!debouncedPseudo || debouncedPseudo.length < 3) {
       setPseudoAvailable(null)
       return
     }
@@ -125,8 +126,6 @@ function RegisterForm() {
       newErrors.pseudo = t('register.errors.pseudo.required')
     } else if (formData.pseudo.length < 3 || formData.pseudo.length > 15) {
       newErrors.pseudo = t('register.errors.pseudo.length')
-    } else if (!/^[a-zA-Z0-9_-]+$/.test(formData.pseudo)) {
-      newErrors.pseudo = t('register.errors.pseudo.format')
     }
 
     if (!formData.email.trim()) {
@@ -189,7 +188,7 @@ function RegisterForm() {
       case 'first_name':
         return formData[name].trim().length > 0
       case 'pseudo':
-        return formData[name].length >= 3 && formData[name].length <= 15 && /^[a-zA-Z0-9_-]+$/.test(formData[name]) && pseudoAvailable === true
+        return formData[name].length >= 3 && formData[name].length <= 15 && pseudoAvailable === true
       case 'email':
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData[name])
       case 'password': {
@@ -280,7 +279,6 @@ function RegisterForm() {
           label={t('register.fields.pseudo')}
           required
           error={errors.pseudo}
-          hint={t('register.hints.pseudo')}
           maxLength={15}
           isValid={isFieldValid('pseudo')}
         >
@@ -296,6 +294,7 @@ function RegisterForm() {
             {pseudoLength}/15
           </span>
         </Input>
+        {formData.pseudo && <PseudoRulesIndicator pseudo={formData.pseudo} pseudoAvailable={pseudoAvailable} />}
       </div>
 
       <div className="mb-4">

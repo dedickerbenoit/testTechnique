@@ -16,7 +16,7 @@ export default {
       phone: '0612345678',
     },
     hints: {
-      pseudo: 'Entre 3 et 15 caractères (lettres, chiffres, tirets, underscores)',
+      pseudo: 'Entre 3 et 15 caractères',
       password: '8 caractères minimum, une majuscule, une minuscule, un chiffre et un caractère spécial',
     },
     submit: "S'inscrire",
@@ -29,7 +29,6 @@ export default {
       pseudo: {
         required: 'Le pseudo est requis.',
         length: 'Le pseudo doit contenir entre 3 et 15 caractères.',
-        format: 'Le pseudo ne peut contenir que des lettres, chiffres, tirets et underscores.',
         unique: 'Ce pseudo est déjà utilisé.',
       },
       email: {
@@ -61,6 +60,10 @@ export default {
       digit: 'Un chiffre',
       special: 'Un caractère spécial',
       noPersonalInfo: 'Ne contient pas d\'informations personnelles',
+    },
+    pseudoRules: {
+      length: 'Entre 3 et 15 caractères',
+      available: 'Pseudo disponible',
     },
     age: '{{age}} ans',
   },
