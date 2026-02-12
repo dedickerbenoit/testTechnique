@@ -8,8 +8,17 @@ import Button from './ui/Button'
 import PasswordStrengthIndicator from './ui/PasswordStrengthIndicator'
 import PseudoRulesIndicator from './ui/PseudoRulesIndicator'
 
+const PHONE_COUNTRIES = [
+  { code: 'FR', dial: '+33', flag: '\u{1F1EB}\u{1F1F7}', pattern: /^0[67]\d{8}$/, placeholder: '0612345678' },
+  { code: 'BE', dial: '+32', flag: '\u{1F1E7}\u{1F1EA}', pattern: /^0[4-9]\d{7,8}$/, placeholder: '0471234567' },
+  { code: 'CH', dial: '+41', flag: '\u{1F1E8}\u{1F1ED}', pattern: /^0[7]\d{8}$/, placeholder: '0791234567' },
+  { code: 'LU', dial: '+352', flag: '\u{1F1F1}\u{1F1FA}', pattern: /^\d{6,9}$/, placeholder: '621123456' },
+]
+
 function RegisterForm() {
   const { t } = useTranslation()
+
+  const [phoneCountry, setPhoneCountry] = useState('FR')
 
   const [formData, setFormData] = useState({
     last_name: '',
@@ -26,15 +35,24 @@ function RegisterForm() {
   const [errors, setErrors] = useState({})
   const [success, setSuccess] = useState('')
   const [pseudoAvailable, setPseudoAvailable] = useState(null)
+  const [pseudoChecking, setPseudoChecking] = useState(false)
+
+  useEffect(() => {
+    return () => {
+      if (avatarPreview) URL.revokeObjectURL(avatarPreview)
+    }
+  }, [avatarPreview])
 
   const debouncedPseudo = useDebounce(formData.pseudo, 500)
 
   useEffect(() => {
     if (!debouncedPseudo || debouncedPseudo.length < 3) {
       setPseudoAvailable(null)
+      setPseudoChecking(false)
       return
     }
 
+    setPseudoChecking(true)
     checkPseudoAvailability(debouncedPseudo)
       .then((data) => {
         setPseudoAvailable(data.available)
@@ -45,6 +63,7 @@ function RegisterForm() {
         }
       })
       .catch(() => setPseudoAvailable(null))
+      .finally(() => setPseudoChecking(false))
   }, [debouncedPseudo, t])
 
   const mutation = useMutation({
@@ -149,8 +168,11 @@ function RegisterForm() {
 
     if (!formData.phone.trim()) {
       newErrors.phone = t('register.errors.phone.required')
-    } else if (!/^0[67]\d{8}$/.test(formData.phone)) {
-      newErrors.phone = t('register.errors.phone.invalid')
+    } else {
+      const country = PHONE_COUNTRIES.find((c) => c.code === phoneCountry)
+      if (!country.pattern.test(formData.phone)) {
+        newErrors.phone = t('register.errors.phone.invalid')
+      }
     }
 
     if (!formData.birthday) {
@@ -174,6 +196,7 @@ function RegisterForm() {
 
     const payload = new FormData()
     Object.keys(formData).forEach((key) => payload.append(key, formData[key]))
+    payload.append('phone_country', phoneCountry)
     if (avatarFile) payload.append('avatar', avatarFile)
 
     mutation.mutate(payload)
@@ -195,8 +218,10 @@ function RegisterForm() {
         const p = formData[name]
         return p.length >= 8 && /[A-Z]/.test(p) && /[a-z]/.test(p) && /[0-9]/.test(p) && /[^a-zA-Z0-9]/.test(p)
       }
-      case 'phone':
-        return /^0[67]\d{8}$/.test(formData[name])
+      case 'phone': {
+        const country = PHONE_COUNTRIES.find((c) => c.code === phoneCountry)
+        return country.pattern.test(formData[name])
+      }
       case 'birthday':
         return new Date(formData[name]) < new Date()
       default:
@@ -260,7 +285,7 @@ function RegisterForm() {
             name="avatar"
             accept="image/jpeg,image/png"
             onChange={handleAvatarChange}
-            className="hidden"
+            className="sr-only"
           />
           {errors.avatar && (
             <p role="alert" className="mt-1 text-xs text-red-500 text-center max-w-24">
@@ -294,7 +319,7 @@ function RegisterForm() {
             {pseudoLength}/15
           </span>
         </Input>
-        {formData.pseudo && <PseudoRulesIndicator pseudo={formData.pseudo} pseudoAvailable={pseudoAvailable} />}
+        {formData.pseudo && <PseudoRulesIndicator pseudo={formData.pseudo} pseudoAvailable={pseudoAvailable} pseudoChecking={pseudoChecking} />}
       </div>
 
       <div className="mb-4">
@@ -327,18 +352,38 @@ function RegisterForm() {
       </div>
 
       <div className="mb-4">
-        <Input
-          id="phone"
-          name="phone"
-          type="tel"
-          value={formData.phone}
-          onChange={handleChange}
-          label={t('register.fields.phone')}
-          required
-          error={errors.phone}
-          placeholder={t('register.placeholders.phone')}
-          isValid={isFieldValid('phone')}
-        />
+        <label htmlFor="phone" className="block text-sm font-medium text-text-primary mb-1">
+          {t('register.fields.phone')} <span className="text-red-500">*</span>
+        </label>
+        <div className="flex gap-2">
+          <select
+            value={phoneCountry}
+            onChange={(e) => {
+              setPhoneCountry(e.target.value)
+              if (errors.phone) setErrors((prev) => ({ ...prev, phone: '' }))
+            }}
+            className="px-2 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white text-sm"
+            aria-label={t('register.fields.phoneCountry')}
+          >
+            {PHONE_COUNTRIES.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.flag} {c.dial}
+              </option>
+            ))}
+          </select>
+          <div className="flex-1">
+            <Input
+              id="phone"
+              name="phone"
+              type="tel"
+              value={formData.phone}
+              onChange={handleChange}
+              error={errors.phone}
+              placeholder={PHONE_COUNTRIES.find((c) => c.code === phoneCountry)?.placeholder}
+              isValid={isFieldValid('phone')}
+            />
+          </div>
+        </div>
       </div>
 
       <div className="mb-6">

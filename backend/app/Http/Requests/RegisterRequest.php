@@ -27,15 +27,31 @@ class RegisterRequest extends FormRequest
             'pseudo' => ['required', 'string', 'min:3', 'max:15', 'unique:users,pseudo'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'max:128', 'regex:/[0-9]/', 'regex:/[A-Z]/', 'regex:/[a-z]/', 'regex:/[^a-zA-Z0-9]/'],
-            'phone' => ['required', 'string', 'regex:/^0[67]\d{8}$/', 'unique:users,phone'],
+            'phone_country' => ['required', 'string', 'in:FR,BE,CH,LU'],
+            'phone' => ['required', 'string', 'unique:users,phone'],
             'birthday' => ['required', 'date', 'before:today'],
             'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:10240'],
         ];
     }
 
+    private const PHONE_PATTERNS = [
+        'FR' => '/^0[67]\d{8}$/',
+        'BE' => '/^0[4-9]\d{7,8}$/',
+        'CH' => '/^0[7]\d{8}$/',
+        'LU' => '/^\d{6,9}$/',
+    ];
+
     public function withValidator($validator): void
     {
         $validator->after(function ($validator) {
+            $phone = $this->input('phone', '');
+            $country = $this->input('phone_country', 'FR');
+            $pattern = self::PHONE_PATTERNS[$country] ?? self::PHONE_PATTERNS['FR'];
+
+            if ($phone && !preg_match($pattern, $phone)) {
+                $validator->errors()->add('phone', 'Le numéro de téléphone n\'est pas valide pour le pays sélectionné.');
+            }
+
             $password = strtolower($this->input('password', ''));
             $personalInfo = [
                 $this->input('last_name'),
@@ -81,7 +97,8 @@ class RegisterRequest extends FormRequest
             'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
             'password.regex' => 'Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial.',
             'phone.required' => 'Le numéro de téléphone est requis.',
-            'phone.regex' => 'Le numéro de téléphone doit être au format français (06 ou 07 suivi de 8 chiffres).',
+            'phone_country.required' => 'L\'indicatif pays est requis.',
+            'phone_country.in' => 'L\'indicatif pays n\'est pas valide.',
             'phone.unique' => 'Ce numéro de téléphone est déjà utilisé.',
             'birthday.required' => 'La date de naissance est requise.',
             'birthday.date' => 'La date de naissance n\'est pas valide.',
