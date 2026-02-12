@@ -9,6 +9,7 @@ export default {
       email: 'Adresse email',
       password: 'Mot de passe',
       phone: 'Numéro de téléphone',
+      phoneCountry: 'Indicatif pays',
       birthday: 'Date de naissance',
       avatar: 'Avatar',
     },
@@ -41,7 +42,7 @@ export default {
       },
       phone: {
         required: 'Le numéro de téléphone est requis.',
-        invalid: 'Le numéro doit être au format français (06 ou 07 suivi de 8 chiffres).',
+        invalid: 'Le numéro de téléphone n\'est pas valide pour le pays sélectionné.',
         unique: 'Ce numéro de téléphone est déjà utilisé.',
       },
       birthday: {
