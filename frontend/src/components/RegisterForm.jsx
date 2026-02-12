@@ -26,6 +26,7 @@ function RegisterForm() {
   const [errors, setErrors] = useState({})
   const [success, setSuccess] = useState('')
   const [pseudoAvailable, setPseudoAvailable] = useState(null)
+  const [pseudoChecking, setPseudoChecking] = useState(false)
 
   useEffect(() => {
     return () => {
@@ -38,9 +39,11 @@ function RegisterForm() {
   useEffect(() => {
     if (!debouncedPseudo || debouncedPseudo.length < 3) {
       setPseudoAvailable(null)
+      setPseudoChecking(false)
       return
     }
 
+    setPseudoChecking(true)
     checkPseudoAvailability(debouncedPseudo)
       .then((data) => {
         setPseudoAvailable(data.available)
@@ -51,6 +54,7 @@ function RegisterForm() {
         }
       })
       .catch(() => setPseudoAvailable(null))
+      .finally(() => setPseudoChecking(false))
   }, [debouncedPseudo, t])
 
   const mutation = useMutation({
@@ -300,7 +304,7 @@ function RegisterForm() {
             {pseudoLength}/15
           </span>
         </Input>
-        {formData.pseudo && <PseudoRulesIndicator pseudo={formData.pseudo} pseudoAvailable={pseudoAvailable} />}
+        {formData.pseudo && <PseudoRulesIndicator pseudo={formData.pseudo} pseudoAvailable={pseudoAvailable} pseudoChecking={pseudoChecking} />}
       </div>
 
       <div className="mb-4">
