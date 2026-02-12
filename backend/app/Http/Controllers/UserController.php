@@ -9,6 +9,15 @@ use Illuminate\Database\QueryException;
 
 class UserController extends Controller
 {
+    public function checkPseudo(string $pseudo)
+    {
+        $exists = User::where('pseudo', $pseudo)->exists();
+
+        return response()->json([
+            'available' => !$exists,
+        ]);
+    }
+
     public function store(RegisterRequest $request)
     {
         $validated = $request->validated();

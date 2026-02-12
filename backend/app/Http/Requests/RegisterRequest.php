@@ -32,6 +32,37 @@ class RegisterRequest extends FormRequest
         ];
     }
 
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            $password = strtolower($this->input('password', ''));
+            $personalInfo = [
+                $this->input('last_name'),
+                $this->input('first_name'),
+                $this->input('pseudo'),
+            ];
+
+            $birthday = $this->input('birthday');
+            if ($birthday) {
+                $date = date_parse($birthday);
+                if ($date['year']) {
+                    $personalInfo[] = (string) $date['year'];
+                    $day = str_pad($date['day'], 2, '0', STR_PAD_LEFT);
+                    $month = str_pad($date['month'], 2, '0', STR_PAD_LEFT);
+                    $personalInfo[] = $day . $month . $date['year'];
+                    $personalInfo[] = $day . $month;
+                }
+            }
+
+            foreach ($personalInfo as $info) {
+                if ($info && strlen($info) >= 2 && str_contains($password, strtolower($info))) {
+                    $validator->errors()->add('password', 'Le mot de passe ne doit pas contenir d\'informations personnelles.');
+                    break;
+                }
+            }
+        });
+    }
+
     public function messages(): array
     {
         return [
