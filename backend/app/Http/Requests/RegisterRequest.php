@@ -29,6 +29,7 @@ class RegisterRequest extends FormRequest
             'password' => ['required', 'string', 'min:8', 'max:128', 'regex:/[0-9]/', 'regex:/[A-Z]/', 'regex:/[a-z]/', 'regex:/[^a-zA-Z0-9]/'],
             'phone' => ['required', 'string', 'regex:/^0[67]\d{8}$/', 'unique:users,phone'],
             'birthday' => ['required', 'date', 'before:today'],
+            'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:10240'],
         ];
     }
 
@@ -85,6 +86,9 @@ class RegisterRequest extends FormRequest
             'birthday.required' => 'La date de naissance est requise.',
             'birthday.date' => 'La date de naissance n\'est pas valide.',
             'birthday.before' => 'La date de naissance doit être dans le passé.',
+            'avatar.image' => 'L\'avatar doit être une image.',
+            'avatar.mimes' => 'L\'avatar doit être au format JPG ou PNG.',
+            'avatar.max' => 'L\'avatar ne doit pas dépasser 10 Mo.',
         ];
     }
 }

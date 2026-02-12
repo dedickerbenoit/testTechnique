@@ -20,6 +20,8 @@ function RegisterForm() {
     birthday: '',
   })
 
+  const [avatarFile, setAvatarFile] = useState(null)
+  const [avatarPreview, setAvatarPreview] = useState(null)
   const [errors, setErrors] = useState({})
   const [success, setSuccess] = useState('')
   const [pseudoAvailable, setPseudoAvailable] = useState(null)
@@ -58,6 +60,8 @@ function RegisterForm() {
         birthday: '',
       })
       setErrors({})
+      setAvatarFile(null)
+      setAvatarPreview(null)
     },
     onError: (error) => {
       if (error.response?.status === 422) {
@@ -79,6 +83,24 @@ function RegisterForm() {
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }))
     }
+  }
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
+      setErrors((prev) => ({ ...prev, avatar: t('register.errors.avatar.type') }))
+      return
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setErrors((prev) => ({ ...prev, avatar: t('register.errors.avatar.size') }))
+      return
+    }
+
+    setAvatarFile(file)
+    setAvatarPreview(URL.createObjectURL(file))
+    setErrors((prev) => ({ ...prev, avatar: '' }))
   }
 
   const calculateAge = (birthday) => {
@@ -151,7 +173,11 @@ function RegisterForm() {
       return
     }
 
-    mutation.mutate(formData)
+    const payload = new FormData()
+    Object.keys(formData).forEach((key) => payload.append(key, formData[key]))
+    if (avatarFile) payload.append('avatar', avatarFile)
+
+    mutation.mutate(payload)
   }
 
   const isFieldValid = (name) => {
@@ -196,27 +222,53 @@ function RegisterForm() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-        <Input
-          id="last_name"
-          name="last_name"
-          value={formData.last_name}
-          onChange={handleChange}
-          label={t('register.fields.lastName')}
-          required
-          error={errors.last_name}
-          isValid={isFieldValid('last_name')}
-        />
-        <Input
-          id="first_name"
-          name="first_name"
-          value={formData.first_name}
-          onChange={handleChange}
-          label={t('register.fields.firstName')}
-          required
-          error={errors.first_name}
-          isValid={isFieldValid('first_name')}
-        />
+      <div className="flex gap-4 mb-4">
+        <div className="flex-1 flex flex-col gap-4">
+          <Input
+            id="last_name"
+            name="last_name"
+            value={formData.last_name}
+            onChange={handleChange}
+            label={t('register.fields.lastName')}
+            required
+            error={errors.last_name}
+            isValid={isFieldValid('last_name')}
+          />
+          <Input
+            id="first_name"
+            name="first_name"
+            value={formData.first_name}
+            onChange={handleChange}
+            label={t('register.fields.firstName')}
+            required
+            error={errors.first_name}
+            isValid={isFieldValid('first_name')}
+          />
+        </div>
+        <div className="flex flex-col items-center justify-center">
+          <label htmlFor="avatar" className="cursor-pointer">
+            <div className="w-24 h-24 rounded-full border-2 border-dashed border-gray-300 hover:border-primary flex items-center justify-center overflow-hidden transition-colors">
+              {avatarPreview ? (
+                <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-xs text-text-secondary text-center px-1">{t('register.fields.avatar')}</span>
+              )}
+            </div>
+          </label>
+          <input
+            type="file"
+            id="avatar"
+            name="avatar"
+            accept="image/jpeg,image/png"
+            onChange={handleAvatarChange}
+            className="hidden"
+          />
+          {errors.avatar && (
+            <p role="alert" className="mt-1 text-xs text-red-500 text-center max-w-24">
+              {errors.avatar}
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="mb-4">
