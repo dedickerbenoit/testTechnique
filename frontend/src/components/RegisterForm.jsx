@@ -27,6 +27,12 @@ function RegisterForm() {
   const [success, setSuccess] = useState('')
   const [pseudoAvailable, setPseudoAvailable] = useState(null)
 
+  useEffect(() => {
+    return () => {
+      if (avatarPreview) URL.revokeObjectURL(avatarPreview)
+    }
+  }, [avatarPreview])
+
   const debouncedPseudo = useDebounce(formData.pseudo, 500)
 
   useEffect(() => {
@@ -260,7 +266,7 @@ function RegisterForm() {
             name="avatar"
             accept="image/jpeg,image/png"
             onChange={handleAvatarChange}
-            className="hidden"
+            className="sr-only"
           />
           {errors.avatar && (
             <p role="alert" className="mt-1 text-xs text-red-500 text-center max-w-24">

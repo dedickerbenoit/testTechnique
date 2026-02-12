@@ -6,6 +6,7 @@ use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
@@ -24,24 +25,28 @@ class UserController extends Controller
         $validated = $request->validated();
 
         try {
-            $user = new User();
-            $user->last_name = $validated['last_name'];
-            $user->first_name = $validated['first_name'];
-            $user->pseudo = $validated['pseudo'];
-            $user->email = $validated['email'];
-            $user->password = $validated['password'];
-            $user->phone = $validated['phone'];
-            $user->birthday = $validated['birthday'];
+            $user = DB::transaction(function () use ($validated, $request) {
+                $user = new User();
+                $user->last_name = $validated['last_name'];
+                $user->first_name = $validated['first_name'];
+                $user->pseudo = $validated['pseudo'];
+                $user->email = $validated['email'];
+                $user->password = $validated['password'];
+                $user->phone = $validated['phone'];
+                $user->birthday = $validated['birthday'];
+                $user->save();
 
-            if ($request->hasFile('avatar')) {
-                $file = $request->file('avatar');
-                $extension = $file->getClientOriginalExtension();
-                $filename = 'avatar-' . $validated['pseudo'] . '.' . $extension;
-                $file->storeAs('avatars', $filename, 'public');
-                $user->avatar = 'avatars/' . $filename;
-            }
+                if ($request->hasFile('avatar')) {
+                    $file = $request->file('avatar');
+                    $extension = $file->getClientOriginalExtension();
+                    $filename = 'avatar-' . $validated['pseudo'] . '.' . $extension;
+                    $file->storeAs('avatars', $filename, 'public');
+                    $user->avatar = 'avatars/' . $filename;
+                    $user->save();
+                }
 
-            $user->save();
+                return $user;
+            });
         } catch (QueryException $e) {
             return response()->json([
                 'message' => 'Une erreur est survenue lors de l\'inscription.',
