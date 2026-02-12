@@ -55,6 +55,7 @@ export default {
       lowercase: 'Une minuscule',
       digit: 'Un chiffre',
       special: 'Un caractère spécial',
+      noPersonalInfo: 'Ne contient pas d\'informations personnelles',
     },
     age: '{{age}} ans',
   },

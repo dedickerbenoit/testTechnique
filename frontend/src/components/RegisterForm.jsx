@@ -272,7 +272,7 @@ function RegisterForm() {
           error={errors.password}
           isValid={isFieldValid('password')}
         />
-        {formData.password && <PasswordStrengthIndicator password={formData.password} />}
+        {formData.password && <PasswordStrengthIndicator password={formData.password} personalInfo={formData} />}
       </div>
 
       <div className="mb-4">
