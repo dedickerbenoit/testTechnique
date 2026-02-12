@@ -10,6 +10,7 @@ export default {
       password: 'Mot de passe',
       phone: 'Numéro de téléphone',
       birthday: 'Date de naissance',
+      avatar: 'Avatar',
     },
     placeholders: {
       phone: '0612345678',
@@ -47,6 +48,10 @@ export default {
       birthday: {
         required: 'La date de naissance est requise.',
         invalid: 'La date de naissance doit être dans le passé.',
+      },
+      avatar: {
+        type: 'L\'avatar doit être au format JPG ou PNG.',
+        size: 'L\'avatar ne doit pas dépasser 10 Mo.',
       },
     },
     passwordRules: {

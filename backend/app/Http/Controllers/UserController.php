@@ -6,6 +6,7 @@ use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -31,6 +32,15 @@ class UserController extends Controller
             $user->password = $validated['password'];
             $user->phone = $validated['phone'];
             $user->birthday = $validated['birthday'];
+
+            if ($request->hasFile('avatar')) {
+                $file = $request->file('avatar');
+                $extension = $file->getClientOriginalExtension();
+                $filename = 'avatar-' . $validated['pseudo'] . '.' . $extension;
+                $file->storeAs('avatars', $filename, 'public');
+                $user->avatar = 'avatars/' . $filename;
+            }
+
             $user->save();
         } catch (QueryException $e) {
             return response()->json([
