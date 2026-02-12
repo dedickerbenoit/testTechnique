@@ -22,22 +22,38 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'last_name' => ['required', 'string'],
-            'first_name' => ['required', 'string'],
-            'pseudo' => ['required', 'string', 'min:3', 'max:15', 'unique:users,pseudo'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'pseudo' => ['required', 'string', 'min:3', 'max:15', 'alpha_dash', 'unique:users,pseudo'],
             'email' => ['required', 'email', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8', 'regex:/[0-9]/', 'regex:/[A-Z]/', 'regex:/[a-z]/', 'regex:/[@$!%*#?&]/'],
-            'phone' => ['required', 'string', 'regex:/^0[67]/', 'unique:users,phone'],
-            'birthday' => ['required', 'date'],
+            'password' => ['required', 'string', 'min:8', 'max:128', 'regex:/[0-9]/', 'regex:/[A-Z]/', 'regex:/[a-z]/', 'regex:/[^a-zA-Z0-9]/'],
+            'phone' => ['required', 'string', 'regex:/^0[67]\d{8}$/', 'unique:users,phone'],
+            'birthday' => ['required', 'date', 'before:today'],
         ];
     }
 
-    public function messages(): array{
+    public function messages(): array
+    {
         return [
+            'last_name.required' => 'Le nom est requis.',
+            'first_name.required' => 'Le prénom est requis.',
+            'pseudo.required' => 'Le pseudo est requis.',
+            'pseudo.min' => 'Le pseudo doit contenir entre 3 et 15 caractères.',
+            'pseudo.max' => 'Le pseudo doit contenir entre 3 et 15 caractères.',
+            'pseudo.alpha_dash' => 'Le pseudo ne peut contenir que des lettres, chiffres, tirets et underscores.',
+            'pseudo.unique' => 'Ce pseudo est déjà utilisé.',
+            'email.required' => 'L\'adresse email est requise.',
+            'email.email' => 'L\'adresse email n\'est pas valide.',
+            'email.unique' => 'Cette adresse email est déjà utilisée.',
+            'password.required' => 'Le mot de passe est requis.',
+            'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
             'password.regex' => 'Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial.',
-            'phone.regex' => 'Le numéro de téléphone doit commencer par 06 ou 07.',
-            'pseudo.min' => 'Le pseudo doit contenir au moins 3 caractères.',
-            'pseudo.max' => 'Le pseudo doit contenir au maximum 15 caractères.',
+            'phone.required' => 'Le numéro de téléphone est requis.',
+            'phone.regex' => 'Le numéro de téléphone doit être au format français (06 ou 07 suivi de 8 chiffres).',
+            'phone.unique' => 'Ce numéro de téléphone est déjà utilisé.',
+            'birthday.required' => 'La date de naissance est requise.',
+            'birthday.date' => 'La date de naissance n\'est pas valide.',
+            'birthday.before' => 'La date de naissance doit être dans le passé.',
         ];
     }
 }
