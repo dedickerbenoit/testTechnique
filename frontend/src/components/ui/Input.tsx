@@ -1,10 +1,26 @@
-import { useState } from 'react'
-import { CheckCircleIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/16/solid'
+import type { InputHTMLAttributes, ReactNode } from "react";
+import { useState } from "react";
+import {
+  CheckCircleIcon,
+  EyeIcon,
+  EyeSlashIcon,
+} from "@heroicons/react/16/solid";
+
+interface InputProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "children"
+> {
+  label?: string;
+  error?: string | undefined;
+  hint?: string | undefined;
+  isValid?: boolean | undefined;
+  children?: ReactNode;
+}
 
 function Input({
   id,
   name,
-  type = 'text',
+  type = "text",
   value,
   onChange,
   label,
@@ -16,14 +32,17 @@ function Input({
   isValid = false,
   children,
   ...props
-}) {
-  const [showPassword, setShowPassword] = useState(false)
-  const isPassword = type === 'password'
-  const inputType = isPassword ? (showPassword ? 'text' : 'password') : type
+}: InputProps) {
+  const [showPassword, setShowPassword] = useState(false);
+  const isPassword = type === "password";
+  const inputType = isPassword ? (showPassword ? "text" : "password") : type;
 
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium text-text-primary mb-1">
+      <label
+        htmlFor={id}
+        className="block text-sm font-medium text-text-primary mb-1"
+      >
         {label} {required && <span className="text-red-500">*</span>}
         {children}
       </label>
@@ -37,9 +56,15 @@ function Input({
           placeholder={placeholder}
           maxLength={maxLength}
           className={`w-full px-4 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${
-            error ? 'border-red-500' : isValid ? 'border-green-500' : 'border-gray-300'
+            error
+              ? "border-red-500"
+              : isValid
+                ? "border-green-500"
+                : "border-gray-300"
           }`}
-          aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}
+          aria-describedby={
+            error ? `${id}-error` : hint ? `${id}-hint` : undefined
+          }
           aria-invalid={!!error}
           {...props}
         />
@@ -48,7 +73,11 @@ function Input({
             type="button"
             onClick={() => setShowPassword((prev) => !prev)}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+            aria-label={
+              showPassword
+                ? "Masquer le mot de passe"
+                : "Afficher le mot de passe"
+            }
           >
             {showPassword ? (
               <EyeSlashIcon className="w-5 h-5" />
@@ -67,12 +96,16 @@ function Input({
         </p>
       )}
       {error && (
-        <p id={`${id}-error`} role="alert" className="mt-1 text-sm text-red-500">
+        <p
+          id={`${id}-error`}
+          role="alert"
+          className="mt-1 text-sm text-red-500"
+        >
           {error}
         </p>
       )}
     </div>
-  )
+  );
 }
 
-export default Input
+export default Input;
