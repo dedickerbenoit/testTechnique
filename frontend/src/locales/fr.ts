@@ -68,6 +68,7 @@ export default {
       length: "Entre 3 et 15 caractères",
       available: "Pseudo disponible",
     },
-    age: "{{age}} ans",
+    age_one: "{{age}} an",
+    age_other: "{{age}} ans",
   },
 } as const;

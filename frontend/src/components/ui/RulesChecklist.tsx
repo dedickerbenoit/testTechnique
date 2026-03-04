@@ -1,4 +1,5 @@
-import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/16/solid";
+import CheckCircleIcon from "../../assets/icons/CheckCircleIcon";
+import XCircleIcon from "../../assets/icons/XCircleIcon";
 
 export interface Rule {
   label: string;
