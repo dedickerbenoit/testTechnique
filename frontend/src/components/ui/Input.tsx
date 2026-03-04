@@ -1,10 +1,8 @@
 import type { InputHTMLAttributes, ReactNode } from "react";
 import { useState } from "react";
-import {
-  CheckCircleIcon,
-  EyeIcon,
-  EyeSlashIcon,
-} from "@heroicons/react/16/solid";
+import CheckCircleIcon from "../../assets/icons/CheckCircleIcon";
+import EyeIcon from "../../assets/icons/EyeIcon";
+import EyeSlashIcon from "../../assets/icons/EyeSlashIcon";
 
 interface InputProps extends Omit<
   InputHTMLAttributes<HTMLInputElement>,
